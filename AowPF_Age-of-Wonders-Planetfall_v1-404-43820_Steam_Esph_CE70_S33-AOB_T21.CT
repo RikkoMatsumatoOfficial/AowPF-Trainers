@@ -1,0 +1,1143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="29">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>0</ID>
+      <Description>"[X] &lt;== Age of Wonders Planetfall v1.404.43820 Steam Script v3.3 AOB"</Description>
+      <Options moHideChildren="1" moDeactivateChildrenAsWell="1"/>
+      <LastState/>
+      <Color>FF0000</Color>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>{
+===========================================
+ Game Title    : Age of Wonders Planetfall
+ Game Version  : 1.404.43820 (Steam)
+ Game Sponsor  : Esph + PF (DLCs)
+ Process Name  : AowPF.exe
+ Relevant Info : 64bits/TBS
+ Script Version: 3.3 AOB
+ CE Version    : 7.0
+ Release date  : 12-May-2021
+ Author        : Recifense
+ History:
+ 15-Aug-2019: First Release (CODEX)
+ 16-Aug-2019: Release for version 1.005 (Steam)
+ 17-Aug-2019: AOB release of the script (s2.1)
+ 05-Sep-2019: Release for version 1.006 (s2.2)
+ 19-Nov-2019: Release for version 1.101 (s2.3)(Revelations)
+ 05-Dec-2019: Release for version 1.104 (s2.4)
+ 19-Feb-2020: Release for version 1.200 (s2.5)
+ 28-Feb-2020: Release for version 1.201 (s2.6)
+ 10-Apr-2020: Release for version 1.201.40273 (s2.7)
+ 27-May-2020: Release for version 1.300.41692 (s2.8) (Invasions)
+ 26-Aug-2020: Release for version 1.303.43249 (s2.9)+ MP after meditation
+ 10-Nov-2020: Release for version 1.400.43638 (s3.0) (Star Kings)
+ 13-Nov-2020: Include a new option: Minimum Imperial Renown for version 1.401 (s3.1)
+ 19-Nov-2020: Release for version 1.402.43739 (s3.2)
+ 12-May-2021: Release for version 1.404.43820 (s3.3)
+ Features:
+ - Minimum Resources
+ - Don't decrease Move Points
+ - God Mode
+ - Unit can act again
+ - Research in 1 turn
+ - Pop Growth in 1 turn
+ - Production in 1 turn
+ - Construction in 1 turn
+ - Minimum Happiness Progress (35)
+ - Minimum Imperial Renown  (New)(s3.1)
+ - Some Pointers
+===========================================
+}
+
+//=========================================
+// Checking CE version
+{$lua}
+  if(getCEVersion() &lt; 7.0) then
+    ShowMessage('Sorry. CE version should be 7.0 or above')
+  end
+{$asm}
+
+//=========================================
+// Checking Selected Process
+{$lua}
+  if(process == nil) then
+    ShowMessage('No process was selected')
+  elseif (string.upper(process) ~= string.upper("AowPF.exe")) then
+    ShowMessage('Warning. Expected Process = AowPF.exe')
+  end
+{$asm}
+
+//=========================================
+{$lua}
+--  monoAA_USEMONO(process,false)
+  if waitForPDB then --this way older CE versions are unaffected (By Dark Byte)
+    waitForPDB()
+  end
+{$asm}
+
+//=========================================
+// Definitions
+define(LUDO,"AowPF.exe")
+{
+define(MOHP,AowPF.exe+00BCA2CB) //==##X==#===
+define(MOMP,AowPF.exe+0100C48D) //==#=X#===#=
+define(MOSU,AowPF.exe+00A38A4B) //==#=##=X=##
+define(GDMD,AowPF.exe+00E49B62) //==#=##=#=#=#
+define(MORP,AowPF.exe+014C3016) //=========#=
+define(MOPG,AowPF.exe+013EB090) //==#==#===#=
+define(MOPP,AowPF.exe+013B8C32) //=#==#=#====
+define(MOCP,AowPF.exe+013B7A68) //=#==#=#====
+define(MOCH,AowPF.exe+018EC0A1) //==#=X======
+define(MOSC,AowPF.exe+016D8273) //====#==#=#=
+define(MSUD,AowPF.exe+00BDA22D) //==#=##=====
+define(MMP2,AowPF.exe+009DC21E) //--------N==
+
+define(CHMK,AowPF.exe+00C91CD2) //----N====== 5 1
+}
+//=========================================
+// Constants used in the script (that can be changed)
+define(ctCE70,(float)7.0)
+
+define(MASK,00000000A2414E3B)
+
+//=========================================
+[ENABLE]
+//=========================================
+//LuaCall(CheckVersion())
+//=========================================
+// Check if script is compatible to this game version
+// If false the script will not be loaded
+
+AOBScanModule(MOHP,$process,48 8b 43 10 48 83 b8 20 01 00 00 00 0f 95 c0 48 8b 5c 24 50 48 8b)
+AOBScanModule(MOMP,$process,4C 8D 8E E4 07 00 00 41 8B 09 8B C1 41 2B 47 FC 3B C1 7F ?? 4C 8B)
+AOBScanModule(MOSU,$process,48 8B 5E 28 48 81 C3 58 01 00 00 F6 83 28 02 00 00 05 75 ?? 8B BB) //
+AOBScanModule(GDMD,$process,48 83 EC 20 83 B9 D0 0B 00 00 02 48 8B D9 75 ?? 48 8B 89 D8 0B 00) //
+
+AOBScanModule(MORP,$process,39 43 30 48 8b 5c 24 30 48 8b 74 24 38 0f 9d c0 48 83 c4 20 5f c3)
+AOBScanModule(MOPG,$process,01 73 60 45 33 C0 8B 73 30 48 8B CB 48 89 6C 24 30 41 8D 50 01 E8)
+AOBScanModule(MOPP,$process,48 8b cb ff 90 38 01 00 00 8b c8 8b 83 78 03 00 00 3b c1 ?? ?? 2b)
+AOBScanModule(MOCP,$process,48 8b cb ff 90 38 01 00 00 8b c8 8b 43 78 3b c1 ?? ?? 2b c1 ?? ??)
+AOBScanModule(MOCH,$process,4c 8d a7 90 00 00 00 41 8b 04 24 8d 0c 30 f7 d0 41 89 04 24 4d 8b cc)
+AOBScanModule(MOSC,$process,44 89 64 24 28 8B 83 6C 0E 00 00 89 44 24 20 4C 8D 0D ?? ?? ?? ??)
+AOBScanModule(MSUD,$process,83 bf 18 08 00 00 00 44 0f b6 c6 48 8b cb 41 0f 95 c1 33 d2 4c 3b)
+AOBScanModule(MMP2,$process,33 C9 45 33 C1 41 89 09 41 81 F0 3B 4E 41 A2 45 89 41 04 48 8B CB 48 8B 03)
+
+AOBScanModule(CHMK,$process,45 33 41 04 45 33 c2 45 33 c1 41 81 f0 3b 4e 41 a2 41 f7 d0 41 8b c8)
+
+//=========================================
+alloc(MyCode,4096,$process)
+//=========================================
+// Declaration section
+label(_MonHumanPlayer)
+label(_BackMHP)
+label(_MonMovePoints)
+label(_BackMMP)
+label(_MonSelUnit)
+label(_BackMSU)
+label(_GodMode)
+label(_BackGMD)
+label(_MonResProg)
+label(_BackMRP)
+label(_MonPopGrowth)
+label(_BackMPG)
+label(_MonProdProg)
+label(_BackMPP)
+label(_MonConstProg)
+label(_BackMCP)
+label(_MonColHappy)
+label(_BackMCH)
+label(_MonSelColony)
+label(_BackMSC)
+label(_MonSelUnitD)
+label(_BackSUD)
+label(_MonMovePoints2)
+label(_BackMP2)
+
+label(iEnableMMR)
+label(iEnableMMP)
+label(iEnableGMD)
+label(iEnableMRP)
+label(iEnableCAA)
+label(iEnableMPG)
+label(iEnableMPP)
+label(iEnableMCP)
+label(iEnableMCH)
+label(iEnableMIR)
+
+label(iCount)
+
+label(pPlayer)
+label(pCommon)
+label(pUnit)
+label(pRes)
+label(pColony)
+label(pUnitD)
+
+//=========================================
+// Registering Symbols
+registersymbol(MyCode)
+registersymbol(iEnableMMR)
+registersymbol(iEnableMMP)
+registersymbol(iEnableGMD)
+registersymbol(iEnableMRP)
+registersymbol(iEnableCAA)
+registersymbol(iEnableMPG)
+registersymbol(iEnableMPP)
+registersymbol(iEnableMCP)
+registersymbol(iEnableMCH)
+registersymbol(iEnableMIR)
+registersymbol(iCount)
+registersymbol(pPlayer)
+registersymbol(pCommon)
+registersymbol(pUnit)
+registersymbol(pRes)
+registersymbol(pColony)
+registersymbol(pUnitD)
+
+registersymbol(MOHP)
+registersymbol(MOMP)
+registersymbol(MOSU)
+registersymbol(GDMD)
+registersymbol(MORP)
+registersymbol(MOPG)
+registersymbol(MOPP)
+registersymbol(MOCP)
+registersymbol(MOCH)
+registersymbol(MOSC)
+registersymbol(MSUD)
+registersymbol(MMP2)
+
+//=========================================
+MyCode:
+//========================================= 1.300 # ok
+// All the time
+// RSI/RDI can be used
+_MonHumanPlayer:
+ mov rax,_BackMHP
+ mov [pBack+00],rax
+
+ mov [pRCX],rcx
+
+ mov rax,[rbx+00000220]
+ mov [pCommon],rax
+
+ cmp [pPlayer],rbx
+ je _MonHP00
+
+ mov [pPlayer],rbx
+ inc dword ptr [iCount]
+
+_MonHP00:
+ mov rax,#700
+ mov rcx,MASK
+
+ cmp dword ptr [iEnableMMR],0
+ je _MonHP04                       // Jump if feature is disabled
+
+// Energy
+ lea rsi,[rbx+000002B0]
+ cmp [rsi],eax
+ jns _MonHP01
+
+ mov rdi,rsi
+ shr rdi,20
+ xor rdi,rsi
+ xor rdi,rax
+ xor rdi,rcx
+
+ mov [rsi],eax
+ mov [rsi+04],edi
+
+_MonHP01:
+// Cosmite
+ lea rsi,[rbx+000002D0]
+ cmp [rsi],eax
+ jns _MonHP02
+
+ mov rdi,rsi
+ shr rdi,20
+ xor rdi,rsi
+ xor rdi,rax
+ xor rdi,rcx
+
+ mov [rsi],eax
+ mov [rsi+04],edi
+
+_MonHP02:
+// Knowledge
+ mov rax,#200
+
+ lea rsi,[rbx+000002C0]
+ cmp [rsi],eax
+ jns _MonHP03
+
+ mov rdi,rsi
+ shr rdi,20
+ xor rdi,rsi
+ xor rdi,rax
+ xor rdi,rcx
+
+ mov [rsi],eax
+ mov [rsi+04],edi
+
+_MonHP03:
+// Influence
+ mov rax,#170
+
+ lea rsi,[rbx+000002C8]
+ cmp [rsi],eax
+ jns _MonHP04
+
+ mov rdi,rsi
+ shr rdi,20
+ xor rdi,rsi
+ xor rdi,rax
+ xor rdi,rcx
+
+ mov [rsi],eax
+ mov [rsi+04],edi
+
+_MonHP04:
+ cmp dword ptr [iEnableMIR],0
+ je _ExitMHP                       // Jump if feature is disabled
+
+// Imperial Renown
+ mov rax,#500
+
+ lea rsi,[rbx+000002D8]
+ cmp [rsi],eax
+ jns _ExitMHP
+
+ mov rdi,rsi
+ shr rdi,20
+ xor rdi,rsi
+ xor rdi,rax
+ xor rdi,rcx
+
+ mov [rsi],eax
+ mov [rsi+04],edi
+
+_ExitMHP:
+ mov rcx,[pRCX]
+
+ mov rax,[rbx+10]                  // Original code (base+10)
+ cmp qword ptr [rax+00000120],00   // Original code
+
+ jmp [pBack+00]                    // Back to main code
+
+//========================================= 1.400 # ok
+// When unit is moving
+_MonMovePoints:
+ mov rcx,_BackMMP
+ mov [pBack+08],rcx
+
+ cmp dword ptr [iEnableMMP],0
+ je _ExitMMP                       // Jump if feature is disabled
+
+ mov rcx,[rsi+00000178]
+ cmp rcx,[pCommon]
+ jne _ExitMMP
+
+ mov ecx,[r15-04]
+ test ecx,ecx
+ js _ExitMMP
+
+ mov ecx,[rsi+000007E4]
+ cmp [r15-04],ecx
+ jns _ExitMMP
+
+ mov [r15-04],ecx
+
+_ExitMMP:
+ xor rcx,rcx
+
+ lea r9,[rsi+000007E4]             // Original code (pMP)
+ mov ecx,[r9]                      // Original code
+ mov eax,ecx                       // Original code
+
+ jmp [pBack+08]                    // Back to main code
+
+//========================================= 1.402 *
+// Selected unit during battle
+// RDI/RAX are safe
+_MonSelUnit:
+ mov rax,_BackMSU
+ mov [pBack+10],rax
+
+ mov [pRCX],rcx
+
+ mov rdi,rdx
+
+ mov rdx,[rsi+28]
+ mov [pUnit],rdx
+
+ cmp dword ptr [iEnableCAA],0
+ je _ExitMSU                       // Jump if feature is disabled
+
+ mov rax,[rdx+00000180]
+ test rax,rax
+ jz _ExitMSU
+
+ mov rax,[rax+000003E8]
+ cmp rax,[pCommon]
+ jne _ExitMSU
+
+ mov rax,#32
+ cmp [rdx+000007E4],eax
+ jns _MonSU00
+
+ mov [rdx+000007E4],eax
+
+ lea rcx,[rdx+000007E4]
+ mov rbx,rcx
+ shr rbx,20
+ xor rbx,rcx
+ xor rbx,rax
+ mov rax,MASK
+ xor rbx,rax
+ mov [rcx+04],ebx
+
+_MonSU00:
+ mov byte ptr [rdx+00000F38],00
+
+_ExitMSU:
+ mov rcx,[pRCX]
+
+ mov rdx,rdi
+
+ mov rbx,[rsi+28]                  // Original code (get unit)
+ add rbx,00000158                  // Original code
+ test byte ptr [rbx+00000228],05   // Original code
+
+ jmp [pBack+10]                    // Back to main code
+
+//========================================= 1.404 *
+// During Combat (HP)
+_GodMode:
+ mov rbx,_BackGMD
+ mov [pBack+18],rbx
+
+ cmp dword ptr [rcx+00000BD0],02
+ je _ExitGMD
+
+ cmp dword ptr [iEnableGMD],0
+ je _ExitGMD                       // Jump if feature is disabled
+
+ mov rbx,[rcx+00000180]
+ test rbx,rbx
+ jz _ExitGMD
+
+ mov rbx,[rbx+000003E8]
+ cmp rbx,[pCommon]
+ jne _ExitGMD
+
+ xor rdx,rdx
+
+_ExitGMD:
+ sub rsp,20                        // Original code
+ cmp dword ptr [rcx+00000BD0],02   // Original code
+ mov rbx,rcx                       // Original code
+
+ jmp [pBack+18]                    // Back to main code
+
+//========================================= 1.400 # ok
+// When setting research
+// RDI can be used
+_MonResProg:
+ mov rdi,_BackMRP
+ mov [pBack+20],rdi
+
+ mov [pRes],rbx
+
+ cmp dword ptr [iEnableMRP],0
+ je _ExitMRP                       // Jump if feature is disabled
+
+ test rsi,rsi
+ jz _ExitMRP
+
+ mov rdi,[rsi+00000628]
+ cmp rdi,[pPlayer]
+ jne _ExitMRP
+
+ movsxd rdi,eax
+ test rdi,rdi
+ jbe _ExitMRP
+
+ dec rdi
+
+ cmp [rbx+30],edi
+ jns _ExitMRP
+
+ mov [rbx+30],edi
+
+_ExitMRP:
+ cmp [rbx+30],eax                  // Original code (chk prog)
+ mov rbx,[rsp+30]                  // Original code
+ mov rsi,[rsp+38]                  // Original code
+
+ jmp [pBack+20]                    // Back to main code
+
+//========================================= 1.400 * ok
+// When upd growth during turn
+_MonPopGrowth:
+ mov rcx,_BackMPG
+ mov [pBack+28],rcx
+
+ cmp dword ptr [iEnableMPG],0
+ je _ExitMPG                       // Jump if feature is disabled
+
+ cmp r14,[pPlayer]
+ jne _ExitMPG
+
+ mov esi,#500
+
+_ExitMPG:
+ add [rbx+60],esi                  // Original code (upd prog)
+ xor r8d,r8d                       // Original code
+ mov esi,[rbx+30]                  // Original code
+ mov rcx,rbx                       // Original code
+
+ jmp [pBack+28]                    // Back to main code
+
+//========================================= 1.201.40273 # ok
+// When checking prog (Production)
+_MonProdProg:
+ mov rcx,_BackMPP
+ mov [pBack+30],rcx
+
+ mov rcx,rbx                       // Original code
+ call qword ptr [rax+00000138]     // Original code (get val needed)
+ mov ecx,eax                       // Original code
+ mov eax,[rbx+00000378]            // Original code (get prog)
+
+ cmp dword ptr [iEnableMPP],0
+ je _ExitMPP                       // Jump if feature is disabled
+
+ mov rbx,[rsp+70]
+ cmp rbx,[pPlayer]
+ jne _ExitMPP
+
+ mov eax,ecx
+
+_ExitMPP:
+ jmp [pBack+30]                    // Back to main code
+
+//========================================= 1.201.40273 #
+// When checking prog  (Construction)
+_MonConstProg:
+ mov rcx,_BackMCP
+ mov [pBack+38],rcx
+
+ mov rcx,rbx                       // Original code
+ call qword ptr [rax+00000138]     // Original code (get val needed)
+ mov ecx,eax                       // Original code
+ mov eax,[rbx+78]                  // Original code (get prog)
+
+ cmp dword ptr [iEnableMCP],0
+ je _ExitMCP                       // Jump if feature is disabled
+
+ mov rbx,[rsp+70]
+ cmp rbx,[pPlayer]
+ jne _ExitMCP
+
+ mov eax,ecx
+
+_ExitMCP:
+ jmp [pBack+38]                    // Back to main code
+
+//========================================= 1.201 ok
+// During turn
+_MonColHappy:
+ mov rax,_BackMCH
+ mov [pBack+40],rax
+
+ cmp dword ptr [iEnableMCH],0
+ je _ExitMCH                       // Jump if feature is disabled
+
+ cmp rbx,[pPlayer]
+ jne _ExitMCH
+
+ mov eax,#35
+ cmp [rdi+00000090],eax
+ jns _ExitMCH
+
+ cmp esi,eax
+ jns _ExitMCH
+
+ mov esi,eax
+
+_ExitMCH:
+ lea r12,[rdi+00000090]            // Original code (pHappi)
+ mov eax,[r12]                     // Original code
+ lea ecx,[rax+rsi]                 // Original code
+
+ jmp [pBack+40]                    // Back to main code
+
+//========================================= 1.400 *
+// When a colony is selected
+_MonSelColony:
+ mov rax,_BackMSC
+ mov [pBack+48],rax
+
+ mov [pColony],rbx
+
+_ExitMSC:
+ mov [rsp+28],r12d                 // Original code
+ mov eax,[rbx+00000E6C]            // Original code (get res)
+ mov [rsp+20],eax                  // Original code
+
+ jmp [pBack+48]                    // Back to main code
+
+//========================================= 1.201 *
+// When look at a unit in detail (strategic map)
+_MonSelUnitD:
+ mov rcx,_BackSUD
+ mov [pBack+50],rcx
+
+ mov [pUnitD],rdi
+
+_ExitSUD:
+ cmp dword ptr [rdi+00000818],00   // Original code (chk val)
+ movzx r8d,sil                     // Original code
+ mov rcx,rbx                       // Original code
+
+ jmp [pBack+50]                    // Back to main code
+
+//========================================= 1.303 new
+// After meditation
+// RAX is safe
+_MonMovePoints2:
+ mov rcx,_BackMP2
+ mov [pBack+58],rcx
+
+ xor ecx,ecx                       // Original code (MP)
+ xor r8d,r9d                       // Original code
+
+ cmp dword ptr [iEnableMMP],0
+ je _ExitMP2                       // Jump if feature is disabled
+
+ mov rax,[rbx+00000178]
+ cmp rax,[pCommon]
+ jne _ExitMP2
+
+ mov ecx,#32
+
+ xor r8d,ecx
+
+_ExitMP2:
+ mov [r9],ecx                      // Original code
+ xor r8d,A2414E3B                  // Original code
+
+ jmp [pBack+58]                    // Back to main code
+
+//=========================================
+align 10,'='
+//=========================================
+ db '===============================&gt;'
+ db 'CE7.0 Script by Recifense 210512'
+//=========================================
+// Variables
+iEnableMMR:
+ dq 0
+iEnableMMP:
+ dq 0
+iEnableGMD:
+ dq 0
+iEnableMRP:
+ dq 0
+iEnableCAA:
+ dq 0
+iEnableMPG:
+ dq 0
+iEnableMPP:
+ dq 0
+iEnableMCP:
+ dq 0
+iEnableMCH:
+ dq 0
+iEnableMIR:
+ dq 0
+iCount:
+ dq 0
+pPlayer:
+ dq MyCode
+pCommon:
+ dq MyCode
+pUnit:
+ dq 0
+pRes:
+ dq 0
+pColony:
+ dq 0
+pUnitD:
+ dq 0
+pRCX:
+ dq 0
+pBack:
+ dq 0,0,0,0,0,0,0,0,0,0,0,0
+
+//=========================================
+// Hacking Points
+MOHP:
+ mov rax,_MonHumanPlayer
+ jmp rax
+_BackMHP:
+
+MOMP:
+ mov rcx,_MonMovePoints
+ jmp rcx
+_BackMMP:
+
+MOSU:
+ mov rax,_MonSelUnit
+ jmp rax
+ nop
+ nop
+ nop
+ nop
+ nop
+ nop
+_BackMSU:
+
+GDMD:
+ mov rbx,_GodMode
+ jmp rbx
+ nop
+ nop
+_BackGMD:
+
+MORP:
+ mov rdi,_MonResProg
+ jmp rdi
+ nop
+_BackMRP:
+
+MOPG:
+ mov rcx,_MonPopGrowth
+ jmp rcx
+_BackMPG:
+
+MOPP:
+ mov rcx,_MonProdProg
+ jmp rcx
+ nop
+ nop
+ nop
+ nop
+ nop
+_BackMPP:
+
+MOCP:
+ mov rcx,_MonConstProg
+ jmp rcx
+ nop
+ nop
+_BackMCP:
+
+MOCH:
+ mov rax,_MonColHappy
+ jmp rax
+ nop
+ nop
+_BackMCH:
+
+MOSC:
+ mov rax,_MonSelColony
+ jmp rax
+ nop
+ nop
+ nop
+_BackMSC:
+
+MSUD:
+ mov rcx,_MonSelUnitD
+ jmp rcx
+ nop
+ nop
+_BackSUD:
+
+MMP2:
+ mov rcx,_MonMovePoints2
+ jmp rcx
+ nop
+ nop
+ nop
+_BackMP2:
+
+//=========================================
+// Script for Restoring Original Codes
+[DISABLE]
+MOHP:
+ db 48 8b 43 10 48 83 b8 20 01 00 00 00
+
+MOMP:
+ db 4C 8D 8E E4 07 00 00 41 8B 09 8B C1
+
+MOSU:
+ db 48 8B 5E 28 48 81 C3 58 01 00 00 F6 83 28 02 00 00 05
+
+GDMD:
+ db 48 83 EC 20 83 B9 D0 0B 00 00 02 48 8B D9
+
+MORP:
+ db 39 43 30 48 8b 5c 24 30 48 8b 74 24 38
+
+MOPG:
+ db 01 73 60 45 33 C0 8B 73 30 48 8B CB
+
+MOPP:
+ db 48 8b cb ff 90 38 01 00 00 8b c8 8b 83 78 03 00 00
+
+MOCP:
+ db 48 8b cb ff 90 38 01 00 00 8b c8 8b 43 78
+
+MOCH:
+ db 4c 8d a7 90 00 00 00 41 8b 04 24 8d 0c 30
+
+MOSC:
+ db 44 89 64 24 28 8B 83 6C 0E 00 00 89 44 24 20
+
+MSUD:
+ db 83 bf 18 08 00 00 00 44 0f b6 c6 48 8b cb
+
+MMP2:
+ db 33 C9 45 33 C1 41 89 09 41 81 F0 3B 4E 41 A2
+
+//=========================================
+// Unregistering Symbols
+unregistersymbol(MyCode)
+unregistersymbol(iEnableMMR)
+unregistersymbol(iEnableMMP)
+unregistersymbol(iEnableGMD)
+unregistersymbol(iEnableMRP)
+unregistersymbol(iEnableCAA)
+unregistersymbol(iEnableMPG)
+unregistersymbol(iEnableMPP)
+unregistersymbol(iEnableMCP)
+unregistersymbol(iEnableMCH)
+unregistersymbol(iEnableMIR)
+unregistersymbol(iCount)
+unregistersymbol(pPlayer)
+unregistersymbol(pCommon)
+unregistersymbol(pUnit)
+unregistersymbol(pRes)
+unregistersymbol(pColony)
+unregistersymbol(pUnitD)
+
+unregistersymbol(MOHP)
+unregistersymbol(MOMP)
+unregistersymbol(MOSU)
+unregistersymbol(GDMD)
+unregistersymbol(MORP)
+unregistersymbol(MOPG)
+unregistersymbol(MOPP)
+unregistersymbol(MOCP)
+unregistersymbol(MOCH)
+unregistersymbol(MOSC)
+unregistersymbol(MSUD)
+unregistersymbol(MMP2)
+
+//=========================================
+dealloc(MyCode)
+//============= Scripts End ===============
+
+// ****************************************
+// NOTES
+// ****************************************
+{
+}
+</AssemblerScript>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>1</ID>
+          <Description>"[X] &lt;== Minimum Resources"</Description>
+          <LastState/>
+          <Color>C08000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[enable]
+{$LUA}
+writeInteger("iEnableMMR",1)
+memrec.Color=0x0004000
+{$ASM}
+
+[disable]
+{$LUA}
+writeInteger("iEnableMMR",0)
+memrec.Color=0x0c08000
+{$ASM}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>2</ID>
+          <Description>"[X] &lt;== Unlimited Movement"</Description>
+          <LastState/>
+          <Color>C08000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[enable]
+{$LUA}
+writeInteger("iEnableMMP",1)
+memrec.Color=0x0004000
+{$ASM}
+
+[disable]
+{$LUA}
+writeInteger("iEnableMMP",0)
+memrec.Color=0x0c08000
+{$ASM}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>3</ID>
+          <Description>"[X] &lt;== God Mode"</Description>
+          <LastState/>
+          <Color>C08000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[enable]
+{$LUA}
+writeInteger("iEnableGMD",1)
+memrec.Color=0x0004000
+{$ASM}
+
+[disable]
+{$LUA}
+writeInteger("iEnableGMD",0)
+memrec.Color=0x0c08000
+{$ASM}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>5</ID>
+          <Description>"[X] &lt;== Unit Can Act Again (during battle)"</Description>
+          <LastState/>
+          <Color>C08000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[enable]
+{$LUA}
+writeInteger("iEnableCAA",1)
+memrec.Color=0x0004000
+{$ASM}
+
+[disable]
+{$LUA}
+writeInteger("iEnableCAA",0)
+memrec.Color=0x0c08000
+{$ASM}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>4</ID>
+          <Description>"[X] &lt;== Research in 1 turn"</Description>
+          <LastState/>
+          <Color>C08000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[enable]
+{$LUA}
+writeInteger("iEnableMRP",1)
+memrec.Color=0x0004000
+{$ASM}
+
+[disable]
+{$LUA}
+writeInteger("iEnableMRP",0)
+memrec.Color=0x0c08000
+{$ASM}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>6</ID>
+          <Description>"[X] &lt;== Population Growth in 1 turn"</Description>
+          <LastState/>
+          <Color>C08000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[enable]
+{$LUA}
+writeInteger("iEnableMPG",1)
+memrec.Color=0x0004000
+{$ASM}
+
+[disable]
+{$LUA}
+writeInteger("iEnableMPG",0)
+memrec.Color=0x0c08000
+{$ASM}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>7</ID>
+          <Description>"[X] &lt;== Production in 1 turn"</Description>
+          <LastState/>
+          <Color>C08000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[enable]
+{$LUA}
+writeInteger("iEnableMPP",1)
+memrec.Color=0x0004000
+{$ASM}
+
+[disable]
+{$LUA}
+writeInteger("iEnableMPP",0)
+memrec.Color=0x0c08000
+{$ASM}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>8</ID>
+          <Description>"[X] &lt;== Construction in 1 turn"</Description>
+          <LastState/>
+          <Color>C08000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[enable]
+{$LUA}
+writeInteger("iEnableMCP",1)
+memrec.Color=0x0004000
+{$ASM}
+
+[disable]
+{$LUA}
+writeInteger("iEnableMCP",0)
+memrec.Color=0x0c08000
+{$ASM}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>9</ID>
+          <Description>"[X] &lt;== Minimum Happiness Progress"</Description>
+          <LastState/>
+          <Color>C08000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[enable]
+{$LUA}
+writeInteger("iEnableMCH",1)
+memrec.Color=0x0004000
+{$ASM}
+
+[disable]
+{$LUA}
+writeInteger("iEnableMCH",0)
+memrec.Color=0x0c08000
+{$ASM}
+</AssemblerScript>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>236</ID>
+          <Description>"[X] &lt;== Minimum Imperial Renown (For My Galactic Empire matches)"</Description>
+          <LastState/>
+          <Color>C08000</Color>
+          <VariableType>Auto Assembler Script</VariableType>
+          <AssemblerScript>[enable]
+{$LUA}
+writeInteger("iEnableMIR",1)
+memrec.Color=0x0008000
+{$ASM}
+
+[disable]
+{$LUA}
+writeInteger("iEnableMIR",0)
+memrec.Color=0x0c08000
+{$ASM}
+</AssemblerScript>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>228</ID>
+      <Description>"[X] &lt;== Table/Script Information"</Description>
+      <Options moHideChildren="1"/>
+      <LastState/>
+      <Color>0000FF</Color>
+      <VariableType>Auto Assembler Script</VariableType>
+      <AssemblerScript>[enable]
+{$LUA}
+getMainForm().CommentButton.doClick()
+{$ASM}
+
+[disable]
+
+</AssemblerScript>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols>
+    <SymbolEntry>
+      <Name>Recifense</Name>
+      <Address>20210512</Address>
+    </SymbolEntry>
+  </UserdefinedSymbols>
+  <Comments>{
+===========================================
+ Game Title    : Age of Wonders Planetfall
+ Game Version  : 1.404.43820 (Steam)
+ Game Sponsor  : Esph + PF (DLCs)
+ Process Name  : AowPF.exe
+ Relevant Info : 64bits/TBS
+ Script Version: 3.3 AOB
+ CE Version    : 7.0
+ Release date  : 12-May-2021
+ Author        : Recifense
+ History:
+ 15-Aug-2019: First Release (CODEX)
+ 16-Aug-2019: Release for version 1.005 (Steam)
+ 17-Aug-2019: AOB release of the script (s2.1)
+ 05-Sep-2019: Release for version 1.006 (s2.2)
+ 19-Nov-2019: Release for version 1.101 (s2.3)(Revelations)
+ 05-Dec-2019: Release for version 1.104 (s2.4)
+ 19-Feb-2020: Release for version 1.200 (s2.5)
+ 28-Feb-2020: Release for version 1.201 (s2.6)
+ 10-Apr-2020: Release for version 1.201.40273 (s2.7)
+ 27-May-2020: Release for version 1.300.41692 (s2.8) (Invasions)
+ 26-Aug-2020: Release for version 1.303.43249 (s2.9)+ MP after meditation
+ 10-Nov-2020: Release for version 1.400.43638 (s3.0) (Star Kings)
+ 13-Nov-2020: Include a new option: Minimum Imperial Renown for version 1.401 (s3.1)
+ 19-Nov-2020: Release for version 1.402.43739 (s3.2)
+ 12-May-2021: Release for version 1.404.43820 (s3.3)
+ Features:
+ - Minimum Resources              [1]
+ - Don't decrease Move Points     [2]
+ - God Mode                       [3](during battle)
+ - Unit can act again             [4](during battle)
+ - Research in 1 turn             [5]
+ - Pop Growth in 1 turn           [6]
+ - Production in 1 turn           [7]
+ - Construction in 1 turn         [8]
+ - Minimum Happiness Progress (35)[9]
+ - Minimum Imperial Renown  (500) [A} (New)(s3.1)
+ - Some Pointers                  [B]
+===========================================
+[1] Human player's resource will not go under minimum value;
+(Energy [700]/Cosmite [700]/Knowledge [200]/influence [170]
+[2] Human player's units/Armies can move freely;
+[3] Human player's units during battle;
+[4] Human player's units can act unlimited times during a turn in battle;
+[5] For human player only;
+[6] For human player's colonies only;
+[7] For human player's colonies only;
+[8] For human player's colonies only;
+[9] For human player's colonies only;
+[A] For human player only; It is used when you are playing through "My Galactic Empire"
+[B] Not used yet
+===========================================
+[USAGE]
+1) Run CE70 or greater;
+2) Run Game;
+3) Load the game process "AowPF.exe" in CE;
+4) Load this table and activate the main script;
+5) Now Activate the script of each cheat you want to use; (**)
+6) Game On;
+(**) It is better to deactivate cheats in between planets. So you can save the scenario before any cheat is applied.
+===========================================
+[HOTKEYS]
+- None defined
+===========================================
+[ADVICE]
+When you can,save the game before starting using table/cheat. So you can always come back in case you don't like the result.
+===========================================
+[INFO]
+Tested on Win 10 64bits
+===========================================
+[INFO]
+ Special thanks to Esph for providing the game.
+===========================================
+Cheers!
+</Comments>
+</CheatTable>
